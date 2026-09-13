@@ -242,3 +242,96 @@
     padding: 24px;
   }
 }
+
+.resultsCard {
+  margin-top: 24px;
+  padding: 32px;
+
+  border: 1px solid #e5e5e5;
+  border-radius: 16px;
+
+  background: #ffffff;
+}
+
+.resultsHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+
+  margin-bottom: 32px;
+}
+
+.resultsLabel {
+  margin: 0 0 10px;
+
+  font-size: 11px;
+  font-weight: 700;
+
+  letter-spacing: 1.4px;
+
+  color: #888888;
+}
+
+.resultsHeader h2 {
+  margin: 0;
+
+  font-size: 28px;
+  font-weight: 600;
+
+  letter-spacing: -0.5px;
+}
+
+.routeArrow {
+  color: #999999;
+  font-weight: 400;
+}
+
+.resultEmoji {
+  font-family:
+    "Apple Color Emoji",
+    "Segoe UI Emoji",
+    sans-serif;
+
+  font-size: 28px;
+}
+
+.resultGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+
+  border-top: 1px solid #eeeeee;
+}
+
+.resultItem {
+  display: flex;
+  flex-direction: column;
+
+  gap: 7px;
+
+  padding-top: 24px;
+}
+
+.resultItem span {
+  font-size: 13px;
+
+  color: #777777;
+}
+
+.resultItem strong {
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.button:disabled {
+  cursor: not-allowed;
+
+  background: #777777;
+}
+
+@media (max-width: 650px) {
+  .resultGrid {
+    grid-template-columns: 1fr;
+
+    gap: 24px;
+  }
+}

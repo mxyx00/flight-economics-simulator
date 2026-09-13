@@ -9,6 +9,14 @@ interface Airport {
   city: string;
 }
 
+interface SimulationResult {
+  departureAirport: string;
+  arrivalAirport: string;
+  distanceNauticalMiles: number;
+  passengerLoadPercent: number;
+  cargoLoadPercent: number;
+}
+
 export default function Home() {
   const [airports, setAirports] = useState<Airport[]>([]);
   const [departure, setDeparture] = useState("");
@@ -16,6 +24,8 @@ export default function Home() {
   const [passengerLoad, setPassengerLoad] = useState(80);
   const [cargoLoad, setCargoLoad] = useState(50);
   const [error, setError] = useState("");
+  const [result, setResult] = useState<SimulationResult | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     async function loadAirports() {
@@ -40,8 +50,9 @@ export default function Home() {
     loadAirports();
   }, []);
 
-  function handleSimulation() {
+  async function handleSimulation() {
     setError("");
+    setResult(null);
 
     if (!departure || !arrival) {
       setError("Please select both airports.");
@@ -55,12 +66,45 @@ export default function Home() {
       return;
     }
 
-    console.log({
-      departure,
-      arrival,
-      passengerLoad,
-      cargoLoad,
-    });
+    setIsLoading(true);
+
+    try {
+      const response = await fetch(
+        "http://localhost:5090/api/simulation",
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type": "application/json",
+          },
+
+          body: JSON.stringify({
+            departureAirport: departure,
+            arrivalAirport: arrival,
+            passengerLoadPercent: passengerLoad,
+            cargoLoadPercent: cargoLoad,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data.error || "Simulation failed."
+        );
+      }
+
+      setResult(data);
+    } catch (error) {
+      if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError("Simulation failed.");
+      }
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (
@@ -74,7 +118,9 @@ export default function Home() {
 
       <section className={styles.container}>
         <div className={styles.intro}>
-          <p className={styles.eyebrow}>737 ECONOMICS SIMULATOR</p>
+          <p className={styles.eyebrow}>
+            737 ECONOMICS SIMULATOR
+          </p>
 
           <h1>Plan a flight.</h1>
 
@@ -88,7 +134,9 @@ export default function Home() {
 
           <div className={styles.airportGrid}>
             <div className={styles.field}>
-              <label htmlFor="departure">Departure</label>
+              <label htmlFor="departure">
+                Departure
+              </label>
 
               <select
                 id="departure"
@@ -97,7 +145,9 @@ export default function Home() {
                   setDeparture(event.target.value)
                 }
               >
-                <option value="">Select airport</option>
+                <option value="">
+                  Select airport
+                </option>
 
                 {airports.map((airport) => (
                   <option
@@ -111,7 +161,9 @@ export default function Home() {
             </div>
 
             <div className={styles.field}>
-              <label htmlFor="arrival">Arrival</label>
+              <label htmlFor="arrival">
+                Arrival
+              </label>
 
               <select
                 id="arrival"
@@ -120,7 +172,9 @@ export default function Home() {
                   setArrival(event.target.value)
                 }
               >
-                <option value="">Select airport</option>
+                <option value="">
+                  Select airport
+                </option>
 
                 {airports.map((airport) => (
                   <option
@@ -137,11 +191,16 @@ export default function Home() {
           <div className={styles.sliderSection}>
             <div className={styles.sliderHeader}>
               <div>
-                <span className={styles.sliderEmoji}>👤</span>
+                <span className={styles.sliderEmoji}>
+                  👤
+                </span>
+
                 <span>Passengers</span>
               </div>
 
-              <strong>{passengerLoad}%</strong>
+              <strong>
+                {passengerLoad}%
+              </strong>
             </div>
 
             <input
@@ -150,7 +209,9 @@ export default function Home() {
               max="100"
               value={passengerLoad}
               onChange={(event) =>
-                setPassengerLoad(Number(event.target.value))
+                setPassengerLoad(
+                  Number(event.target.value)
+                )
               }
             />
           </div>
@@ -158,11 +219,16 @@ export default function Home() {
           <div className={styles.sliderSection}>
             <div className={styles.sliderHeader}>
               <div>
-                <span className={styles.sliderEmoji}>🧳</span>
+                <span className={styles.sliderEmoji}>
+                  🧳
+                </span>
+
                 <span>Cargo</span>
               </div>
 
-              <strong>{cargoLoad}%</strong>
+              <strong>
+                {cargoLoad}%
+              </strong>
             </div>
 
             <input
@@ -171,7 +237,9 @@ export default function Home() {
               max="100"
               value={cargoLoad}
               onChange={(event) =>
-                setCargoLoad(Number(event.target.value))
+                setCargoLoad(
+                  Number(event.target.value)
+                )
               }
             />
           </div>
@@ -185,10 +253,66 @@ export default function Home() {
           <button
             className={styles.button}
             onClick={handleSimulation}
+            disabled={isLoading}
           >
-            Run Simulation
+            {isLoading
+              ? "Running..."
+              : "Run Simulation"}
           </button>
         </div>
+
+        {result && (
+          <div className={styles.resultsCard}>
+            <div className={styles.resultsHeader}>
+              <div>
+                <p className={styles.resultsLabel}>
+                  SIMULATION RESULT
+                </p>
+
+                <h2>
+                  {result.departureAirport}
+
+                  <span className={styles.routeArrow}>
+                    {" "}→{" "}
+                  </span>
+
+                  {result.arrivalAirport}
+                </h2>
+              </div>
+
+              <span className={styles.resultEmoji}>
+                ✈️
+              </span>
+            </div>
+
+            <div className={styles.resultGrid}>
+              <div className={styles.resultItem}>
+                <span>Distance</span>
+
+                <strong>
+                  {result.distanceNauticalMiles.toLocaleString()}{" "}
+                  nm
+                </strong>
+              </div>
+
+              <div className={styles.resultItem}>
+                <span>Passenger Load</span>
+
+                <strong>
+                  {result.passengerLoadPercent}%
+                </strong>
+              </div>
+
+              <div className={styles.resultItem}>
+                <span>Cargo Load</span>
+
+                <strong>
+                  {result.cargoLoadPercent}%
+                </strong>
+              </div>
+            </div>
+          </div>
+        )}
       </section>
     </main>
   );
