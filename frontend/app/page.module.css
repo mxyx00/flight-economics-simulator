@@ -297,9 +297,18 @@
 
 .resultGrid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+
+  gap: 32px 24px;
 
   border-top: 1px solid #eeeeee;
+}
+
+.resultItem small {
+  font-size: 12px;
+  color: #999999;
 }
 
 .resultItem {
@@ -318,7 +327,7 @@
 }
 
 .resultItem strong {
-  font-size: 22px;
+  font-size: 20px;
   font-weight: 600;
 }
 

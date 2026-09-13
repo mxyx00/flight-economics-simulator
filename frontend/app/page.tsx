@@ -10,11 +10,22 @@ interface Airport {
 }
 
 interface SimulationResult {
+  aircraftName: string;
+
   departureAirport: string;
   arrivalAirport: string;
+
   distanceNauticalMiles: number;
+
   passengerLoadPercent: number;
+  passengerCount: number;
+  maximumPassengers: number;
+
   cargoLoadPercent: number;
+  cargoWeightKg: number;
+  maximumCargoWeightKg: number;
+
+  estimatedFlightTimeMinutes: number;
 }
 
 export default function Home() {
@@ -49,6 +60,13 @@ export default function Home() {
 
     loadAirports();
   }, []);
+
+  function formatFlightTime(totalMinutes: number) {
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+
+  return `${hours}h ${minutes}m`;
+    }
 
   async function handleSimulation() {
     setError("");
@@ -285,33 +303,59 @@ export default function Home() {
               </span>
             </div>
 
-            <div className={styles.resultGrid}>
-              <div className={styles.resultItem}>
-                <span>Distance</span>
+      <div className={styles.resultGrid}>
+        <div className={styles.resultItem}>
+          <span>Aircraft</span>
 
-                <strong>
-                  {result.distanceNauticalMiles.toLocaleString()}{" "}
-                  nm
-                </strong>
-              </div>
+          <strong>
+            {result.aircraftName}
+          </strong>
+        </div>
 
-              <div className={styles.resultItem}>
-                <span>Passenger Load</span>
+        <div className={styles.resultItem}>
+          <span>Distance</span>
 
-                <strong>
-                  {result.passengerLoadPercent}%
-                </strong>
-              </div>
+          <strong>
+            {result.distanceNauticalMiles.toLocaleString()} nm
+          </strong>
+        </div>
 
-              <div className={styles.resultItem}>
-                <span>Cargo Load</span>
+        <div className={styles.resultItem}>
+          <span>Estimated Time</span>
 
-                <strong>
-                  {result.cargoLoadPercent}%
-                </strong>
-              </div>
-            </div>
-          </div>
+          <strong>
+            {formatFlightTime(
+              result.estimatedFlightTimeMinutes
+            )}
+          </strong>
+        </div>
+
+        <div className={styles.resultItem}>
+          <span>Passengers</span>
+
+          <strong>
+            {result.passengerCount} /{" "}
+            {result.maximumPassengers}
+          </strong>
+
+          <small>
+            {result.passengerLoadPercent}% load
+          </small>
+        </div>
+
+        <div className={styles.resultItem}>
+          <span>Cargo</span>
+
+          <strong>
+            {result.cargoWeightKg.toLocaleString()} kg
+          </strong>
+
+          <small>
+            {result.cargoLoadPercent}% load
+          </small>
+        </div>
+      </div>
+      </div>
         )}
       </section>
     </main>

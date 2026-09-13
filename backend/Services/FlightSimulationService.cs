@@ -1,6 +1,7 @@
 using backend.Data;
 using backend.DTOs;
 using Microsoft.EntityFrameworkCore;
+using backend.Models;
 
 // using haversine formula to calculate distance
 // using nautical miles
@@ -9,6 +10,14 @@ namespace backend.Services;
 
 public class FlightSimulationService
 {
+    private static readonly Aircraft Boeing737800 = new()
+        {
+            Name = "Boeing 737-800",
+            MaximumPassengers = 189,
+            CruiseSpeedKnots = 450,
+            MaximumCargoWeightKg = 5000,
+            FlightTimeAllowanceHours = 0.6 // includes taxi takeoff and landing
+        };
     private readonly AppDbContext _context;
 
     public FlightSimulationService(AppDbContext context)
@@ -56,16 +65,51 @@ public class FlightSimulationService
                 arrival.Longitude
             );
 
-        return new SimulationResult
+        int passengerCount =
+            (int)Math.Round(
+                Boeing737800.MaximumPassengers
+                * passengerLoadPercent
+                / 100.0,
+                MidpointRounding.AwayFromZero
+            );
+
+        double cargoWeightKg =
+            Boeing737800.MaximumCargoWeightKg
+            * cargoLoadPercent
+            / 100.0;
+
+        double estimatedFlightTimeHours =
+            distanceNauticalMiles
+            / Boeing737800.CruiseSpeedKnots
+            + Boeing737800.FlightTimeAllowanceHours;
+
+        int estimatedFlightTimeMinutes =
+            (int)Math.Round(
+                estimatedFlightTimeHours * 60
+            );
+
+       return new SimulationResult
         {
+            AircraftName = Boeing737800.Name,
+
             DepartureAirport = departure.Code,
             ArrivalAirport = arrival.Code,
-            DistanceNauticalMiles =
-                Math.Round(distanceNauticalMiles),
+
+            DistanceNauticalMiles = Math.Round(distanceNauticalMiles),
+
             PassengerLoadPercent = passengerLoadPercent,
-            CargoLoadPercent = cargoLoadPercent
-        };
-    }
+
+            PassengerCount = passengerCount,
+
+            MaximumPassengers = Boeing737800.MaximumPassengers,
+
+            CargoLoadPercent =cargoLoadPercent,
+
+            CargoWeightKg = Math.Round(cargoWeightKg),
+
+            MaximumCargoWeightKg =  Boeing737800.MaximumCargoWeightKg,
+
+            EstimatedFlightTimeMinutes = estimatedFlightTimeMinutes };}
 
     private static double CalculateGreatCircleDistance(
         double latitude1,
