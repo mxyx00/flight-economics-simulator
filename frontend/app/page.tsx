@@ -10,22 +10,49 @@ interface Airport {
 }
 
 interface SimulationResult {
-  aircraftName: string;
+    aircraftName: string;
 
-  departureAirport: string;
-  arrivalAirport: string;
+    departureAirport: string;
+    arrivalAirport: string;
 
-  distanceNauticalMiles: number;
+    distanceNauticalMiles: number;
 
-  passengerLoadPercent: number;
-  passengerCount: number;
-  maximumPassengers: number;
+    passengerLoadPercent: number;
+    passengerCount: number;
+    maximumPassengers: number;
 
-  cargoLoadPercent: number;
-  cargoWeightKg: number;
-  maximumCargoWeightKg: number;
+    passengerWeightKg: number;
+    checkedBaggageWeightKg: number;
 
-  estimatedFlightTimeMinutes: number;
+    cargoLoadPercent: number;
+    cargoWeightKg: number;
+    maximumCargoWeightKg: number;
+
+    payloadWeightKg: number;
+
+    operatingEmptyWeightKg: number;
+
+    zeroFuelWeightKg: number;
+    maximumZeroFuelWeightKg: number;
+
+    estimatedFlightTimeMinutes: number;
+
+    tripFuelKg: number;
+    reserveFuelKg: number;
+    contingencyFuelKg: number;
+
+    requiredFuelKg: number;
+    maximumFuelKg: number;
+
+    fuelLoadPercent: number;
+
+    rampWeightKg: number;
+
+    takeoffWeightKg: number;
+    maximumTakeoffWeightKg: number;
+
+    landingWeightKg: number;
+    maximumLandingWeightKg: number;
 }
 
 export default function Home() {
@@ -354,6 +381,67 @@ export default function Home() {
             {result.cargoLoadPercent}% load
           </small>
         </div>
+
+        <div className={styles.resultItem}>
+          <span>Fuel Required</span>
+
+          <strong>
+            {result.requiredFuelKg.toLocaleString()} kg
+          </strong>
+
+          <small>
+            {result.fuelLoadPercent}% of capacity
+          </small>
+        </div>
+
+      <div className={styles.resultItem}>
+        <span>Payload</span>
+
+        <strong>
+          {result.payloadWeightKg.toLocaleString()} kg
+        </strong>
+
+        <small>
+          Passengers + bags + cargo
+        </small>
+      </div>
+
+      <div className={styles.resultItem}>
+        <span>Zero Fuel Weight</span>
+
+        <strong>
+          {result.zeroFuelWeightKg.toLocaleString()} kg
+        </strong>
+
+        <small>
+          Max {result.maximumZeroFuelWeightKg.toLocaleString()} kg
+        </small>
+      </div>
+
+      <div className={styles.resultItem}>
+        <span>Takeoff Weight</span>
+
+        <strong>
+          {result.takeoffWeightKg.toLocaleString()} kg
+        </strong>
+
+        <small>
+          Max {result.maximumTakeoffWeightKg.toLocaleString()} kg
+        </small>
+      </div>
+
+      <div className={styles.resultItem}>
+        <span>Landing Weight</span>
+
+        <strong>
+          {result.landingWeightKg.toLocaleString()} kg
+        </strong>
+
+        <small>
+          Max {result.maximumLandingWeightKg.toLocaleString()} kg
+        </small>
+      </div>
+
       </div>
       </div>
         )}

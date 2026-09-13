@@ -58,5 +58,13 @@ public class SimulationController : ControllerBase
                 error = exception.Message
             });
         }
+
+        catch (InvalidOperationException exception)
+        {
+            return BadRequest(new
+            {
+                error = exception.Message
+            });
+        }
     }
 }
