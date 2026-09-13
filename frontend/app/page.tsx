@@ -21,7 +21,7 @@ export default function Home() {
     async function loadAirports() {
       try {
         const response = await fetch(
-          "http://localhost:5250/api/airports"
+          "http://localhost:5090/api/airports"
         );
 
         if (!response.ok) {
