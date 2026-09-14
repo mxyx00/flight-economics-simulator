@@ -13,4 +13,8 @@ public class Airport
     public double Latitude { get; set; }
 
     public double Longitude { get; set; }
+
+    public double LandingFeePer1000Lb { get; set; }
+
+    public double DepartureFee { get; set; }
 }
