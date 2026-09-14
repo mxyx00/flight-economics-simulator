@@ -17,6 +17,22 @@ public class FlightSimulationService
     private const double CheckedBagFeePerPassenger =
         30.0;
 
+    private const double KilogramsToPounds =
+        2.2046226218;
+
+    // Simulator labor-cost assumptions
+    private const double CaptainCostPerHour =
+        350.0;
+
+    private const double FirstOfficerCostPerHour =
+        250.0;
+
+    private const double FlightAttendantCostPerHour =
+        60.0;
+
+    private const double CrewDutyTimeAllowanceHours =
+        1.5;
+
     private static readonly Aircraft Boeing737800 = new()
     {
         Name = "Boeing 737-800",
@@ -248,6 +264,63 @@ public class FlightSimulationService
             passengerCount
             * CheckedBagFeePerPassenger;
 
+        int pilotCount = 2;
+
+        int flightAttendantCount =
+            CalculateRequiredFlightAttendants(
+                Boeing737800.MaximumPassengers
+            );
+
+        double crewDutyHours =
+            estimatedFlightTimeHours
+            + CrewDutyTimeAllowanceHours;
+
+        double hourlyCockpitCost =
+            CaptainCostPerHour
+            + FirstOfficerCostPerHour;
+
+        double hourlyCabinCrewCost =
+            flightAttendantCount
+            * FlightAttendantCostPerHour;
+
+        double crewCost =
+            crewDutyHours
+            * (
+                hourlyCockpitCost
+                + hourlyCabinCrewCost
+            );
+
+        double landingWeightLb =
+            fuelPlan.LandingWeightKg
+            * KilogramsToPounds;
+
+        double landingFee =
+            landingWeightLb
+            / 1000.0
+            * arrival.LandingFeePer1000Lb;
+
+        double departureFee =
+            departure.DepartureFee;
+
+        double totalTripCost =
+            fuelBurnCost
+            + crewCost
+            + landingFee
+            + departureFee;
+
+        double ticketRevenueRequired =
+            Math.Max(
+                0,
+                totalTripCost
+                - checkedBagRevenue
+            );
+
+        double breakEvenTicketPrice =
+            passengerCount > 0
+                ? ticketRevenueRequired
+                    / passengerCount
+                : 0;
+
         return new SimulationResult
         {
             AircraftName =
@@ -376,8 +449,53 @@ public class FlightSimulationService
                 ),
 
             CheckedBagRevenue =
+                Math.Round(checkedBagRevenue,2),
+
+            PilotCount =
+                pilotCount,
+
+            FlightAttendantCount =
+                flightAttendantCount,
+
+            CrewDutyHours =
                 Math.Round(
-                    checkedBagRevenue,
+                    crewDutyHours,
+                    2
+                ),
+
+            CrewCost =
+                Math.Round(
+                    crewCost,
+                    2
+                ),
+
+            LandingFee =
+                Math.Round(
+                    landingFee,
+                    2
+                ),
+
+            DepartureFee =
+                Math.Round(
+                    departureFee,
+                    2
+                ),
+
+            TotalTripCost =
+                Math.Round(
+                    totalTripCost,
+                    2
+                ),
+
+            TicketRevenueRequired =
+                Math.Round(
+                    ticketRevenueRequired,
+                    2
+                ),
+
+            BreakEvenTicketPrice =
+                Math.Round(
+                    breakEvenTicketPrice,
                     2
                 )
         };
@@ -675,4 +793,27 @@ public class FlightSimulationService
 
         return liters / LitersPerUsGallon;
     }    
+
+        private static int CalculateRequiredFlightAttendants(
+            int seatingCapacity)
+        {
+            if (seatingCapacity <= 50)
+            {
+                return 1;
+            }
+
+            if (seatingCapacity <= 100)
+            {
+                return 2;
+            }
+
+            int seatsAbove100 =
+                seatingCapacity - 100;
+
+            return 2
+                + (int)Math.Ceiling(
+                    seatsAbove100 / 50.0
+                );
+        }
+
 }

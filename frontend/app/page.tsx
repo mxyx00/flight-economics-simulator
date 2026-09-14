@@ -65,6 +65,20 @@ interface SimulationResult {
   fuelLoadValue: number;
 
   checkedBagRevenue: number;
+
+    pilotCount: number;
+    flightAttendantCount: number;
+
+    crewDutyHours: number;
+    crewCost: number;
+
+    landingFee: number;
+    departureFee: number;
+
+    totalTripCost: number;
+    ticketRevenueRequired: number;
+
+    breakEvenTicketPrice: number;
 }
 
 export default function Home() {
@@ -587,7 +601,76 @@ export default function Home() {
                     $30 × {result.passengerCount} passengers
                   </small>
                 </div>
+
+                <div className={styles.resultItem}>
+                  <span>Crew Cost</span>
+
+                  <strong>
+                    {formatMoney(result.crewCost)}
+                  </strong>
+
+                  <small>
+                    {result.pilotCount} pilots +{" "}
+                    {result.flightAttendantCount} flight attendants
+                  </small>
+                </div>
+
+                <div className={styles.resultItem}>
+                  <span>Landing Fee</span>
+
+                  <strong>
+                    {formatMoney(result.landingFee)}
+                  </strong>
+
+                  <small>
+                    {result.arrivalAirport}
+                  </small>
+                </div>
+
+                <div className={styles.resultItem}>
+                  <span>Departure Fee</span>
+
+                  <strong>
+                    {formatMoney(result.departureFee)}
+                  </strong>
+
+                  <small>
+                    {result.departureAirport}
+                  </small>
+                </div>
+
+                <div className={styles.resultItem}>
+                  <span>Total Trip Cost</span>
+
+                  <strong>
+                    {formatMoney(result.totalTripCost)}
+                  </strong>
+
+                  <small>
+                    Direct modeled operating cost
+                  </small>
+                </div>
+
               </div>
+
+              <div className={styles.breakEven}>
+              <span>BREAK-EVEN TICKET PRICE</span>
+
+              <strong>
+                {result.passengerCount > 0
+                  ? formatMoney(
+                      result.breakEvenTicketPrice
+                    )
+                  : "N/A"}
+              </strong>
+
+              <small>
+                per passenger
+              </small>
+            </div>
+
+
+
             </div>
           </div>
         )}

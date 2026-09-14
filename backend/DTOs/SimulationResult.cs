@@ -72,5 +72,23 @@ public class SimulationResult
 
     public double FuelLoadValue { get; set; }
 
-public double CheckedBagRevenue { get; set; }
+    public double CheckedBagRevenue { get; set; }
+
+    public int PilotCount { get; set; }
+
+    public int FlightAttendantCount { get; set; }
+
+    public double CrewDutyHours { get; set; }
+
+    public double CrewCost { get; set; }
+
+    public double LandingFee { get; set; }
+
+    public double DepartureFee { get; set; }
+
+    public double TotalTripCost { get; set; }
+
+    public double TicketRevenueRequired { get; set; }
+
+    public double BreakEvenTicketPrice { get; set; }
 }
