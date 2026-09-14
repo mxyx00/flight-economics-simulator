@@ -10,59 +10,77 @@ interface Airport {
 }
 
 interface SimulationResult {
-    aircraftName: string;
+  aircraftName: string;
 
-    departureAirport: string;
-    arrivalAirport: string;
+  departureAirport: string;
+  arrivalAirport: string;
 
-    distanceNauticalMiles: number;
+  distanceNauticalMiles: number;
 
-    passengerLoadPercent: number;
-    passengerCount: number;
-    maximumPassengers: number;
+  passengerLoadPercent: number;
+  passengerCount: number;
+  maximumPassengers: number;
 
-    passengerWeightKg: number;
-    checkedBaggageWeightKg: number;
+  passengerWeightKg: number;
+  checkedBaggageWeightKg: number;
 
-    cargoLoadPercent: number;
-    cargoWeightKg: number;
-    maximumCargoWeightKg: number;
+  cargoLoadPercent: number;
+  cargoWeightKg: number;
+  maximumCargoWeightKg: number;
 
-    payloadWeightKg: number;
+  payloadWeightKg: number;
 
-    operatingEmptyWeightKg: number;
+  operatingEmptyWeightKg: number;
 
-    zeroFuelWeightKg: number;
-    maximumZeroFuelWeightKg: number;
+  zeroFuelWeightKg: number;
+  maximumZeroFuelWeightKg: number;
 
-    estimatedFlightTimeMinutes: number;
+  estimatedFlightTimeMinutes: number;
 
-    tripFuelKg: number;
-    reserveFuelKg: number;
-    contingencyFuelKg: number;
+  tripFuelKg: number;
+  reserveFuelKg: number;
+  contingencyFuelKg: number;
 
-    requiredFuelKg: number;
-    maximumFuelKg: number;
+  requiredFuelKg: number;
+  maximumFuelKg: number;
 
-    fuelLoadPercent: number;
+  fuelLoadPercent: number;
 
-    rampWeightKg: number;
+  rampWeightKg: number;
 
-    takeoffWeightKg: number;
-    maximumTakeoffWeightKg: number;
+  takeoffWeightKg: number;
+  maximumTakeoffWeightKg: number;
 
-    landingWeightKg: number;
-    maximumLandingWeightKg: number;
+  landingWeightKg: number;
+  maximumLandingWeightKg: number;
+
+  tripFuelGallons: number;
+  requiredFuelGallons: number;
+
+  fuelPricePerGallon: number;
+  fuelPriceDate: string;
+  fuelPriceSource: string;
+
+  fuelBurnCost: number;
+  fuelLoadValue: number;
+
+  checkedBagRevenue: number;
 }
 
 export default function Home() {
   const [airports, setAirports] = useState<Airport[]>([]);
+
   const [departure, setDeparture] = useState("");
   const [arrival, setArrival] = useState("");
+
   const [passengerLoad, setPassengerLoad] = useState(80);
   const [cargoLoad, setCargoLoad] = useState(50);
+
   const [error, setError] = useState("");
-  const [result, setResult] = useState<SimulationResult | null>(null);
+
+  const [result, setResult] =
+    useState<SimulationResult | null>(null);
+
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -81,7 +99,10 @@ export default function Home() {
         setAirports(data);
       } catch (error) {
         console.error(error);
-        setError("Unable to load airports.");
+
+        setError(
+          "Unable to load airports. Make sure the backend is running."
+        );
       }
     }
 
@@ -89,11 +110,20 @@ export default function Home() {
   }, []);
 
   function formatFlightTime(totalMinutes: number) {
-  const hours = Math.floor(totalMinutes / 60);
-  const minutes = totalMinutes % 60;
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
 
-  return `${hours}h ${minutes}m`;
-    }
+    return `${hours}h ${minutes}m`;
+  }
+
+  function formatMoney(value: number) {
+    return value.toLocaleString("en-US", {
+      style: "currency",
+      currency: "USD",
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+  }
 
   async function handleSimulation() {
     setError("");
@@ -142,6 +172,8 @@ export default function Home() {
 
       setResult(data);
     } catch (error) {
+      console.error(error);
+
       if (error instanceof Error) {
         setError(error.message);
       } else {
@@ -330,120 +362,234 @@ export default function Home() {
               </span>
             </div>
 
-      <div className={styles.resultGrid}>
-        <div className={styles.resultItem}>
-          <span>Aircraft</span>
+            <p className={styles.sectionLabel}>
+              FLIGHT
+            </p>
 
-          <strong>
-            {result.aircraftName}
-          </strong>
-        </div>
+            <div className={styles.resultGrid}>
+              <div className={styles.resultItem}>
+                <span>Aircraft</span>
 
-        <div className={styles.resultItem}>
-          <span>Distance</span>
+                <strong>
+                  {result.aircraftName}
+                </strong>
+              </div>
 
-          <strong>
-            {result.distanceNauticalMiles.toLocaleString()} nm
-          </strong>
-        </div>
+              <div className={styles.resultItem}>
+                <span>Distance</span>
 
-        <div className={styles.resultItem}>
-          <span>Estimated Time</span>
+                <strong>
+                  {result.distanceNauticalMiles.toLocaleString()}{" "}
+                  nm
+                </strong>
+              </div>
 
-          <strong>
-            {formatFlightTime(
-              result.estimatedFlightTimeMinutes
-            )}
-          </strong>
-        </div>
+              <div className={styles.resultItem}>
+                <span>Estimated Time</span>
 
-        <div className={styles.resultItem}>
-          <span>Passengers</span>
+                <strong>
+                  {formatFlightTime(
+                    result.estimatedFlightTimeMinutes
+                  )}
+                </strong>
+              </div>
 
-          <strong>
-            {result.passengerCount} /{" "}
-            {result.maximumPassengers}
-          </strong>
+              <div className={styles.resultItem}>
+                <span>Passengers</span>
 
-          <small>
-            {result.passengerLoadPercent}% load
-          </small>
-        </div>
+                <strong>
+                  {result.passengerCount} /{" "}
+                  {result.maximumPassengers}
+                </strong>
 
-        <div className={styles.resultItem}>
-          <span>Cargo</span>
+                <small>
+                  {result.passengerLoadPercent}% load
+                </small>
+              </div>
 
-          <strong>
-            {result.cargoWeightKg.toLocaleString()} kg
-          </strong>
+              <div className={styles.resultItem}>
+                <span>Cargo</span>
 
-          <small>
-            {result.cargoLoadPercent}% load
-          </small>
-        </div>
+                <strong>
+                  {result.cargoWeightKg.toLocaleString()} kg
+                </strong>
 
-        <div className={styles.resultItem}>
-          <span>Fuel Required</span>
+                <small>
+                  {result.cargoLoadPercent}% load
+                </small>
+              </div>
+            </div>
 
-          <strong>
-            {result.requiredFuelKg.toLocaleString()} kg
-          </strong>
+            <div className={styles.economicsSection}>
+              <p className={styles.sectionLabel}>
+                WEIGHT & FUEL
+              </p>
 
-          <small>
-            {result.fuelLoadPercent}% of capacity
-          </small>
-        </div>
+              <div className={styles.resultGrid}>
+                <div className={styles.resultItem}>
+                  <span>Payload</span>
 
-      <div className={styles.resultItem}>
-        <span>Payload</span>
+                  <strong>
+                    {result.payloadWeightKg.toLocaleString()} kg
+                  </strong>
 
-        <strong>
-          {result.payloadWeightKg.toLocaleString()} kg
-        </strong>
+                  <small>
+                    Passengers + bags + cargo
+                  </small>
+                </div>
 
-        <small>
-          Passengers + bags + cargo
-        </small>
-      </div>
+                <div className={styles.resultItem}>
+                  <span>Zero Fuel Weight</span>
 
-      <div className={styles.resultItem}>
-        <span>Zero Fuel Weight</span>
+                  <strong>
+                    {result.zeroFuelWeightKg.toLocaleString()} kg
+                  </strong>
 
-        <strong>
-          {result.zeroFuelWeightKg.toLocaleString()} kg
-        </strong>
+                  <small>
+                    Max{" "}
+                    {result.maximumZeroFuelWeightKg.toLocaleString()}{" "}
+                    kg
+                  </small>
+                </div>
 
-        <small>
-          Max {result.maximumZeroFuelWeightKg.toLocaleString()} kg
-        </small>
-      </div>
+                <div className={styles.resultItem}>
+                  <span>Takeoff Weight</span>
 
-      <div className={styles.resultItem}>
-        <span>Takeoff Weight</span>
+                  <strong>
+                    {result.takeoffWeightKg.toLocaleString()} kg
+                  </strong>
 
-        <strong>
-          {result.takeoffWeightKg.toLocaleString()} kg
-        </strong>
+                  <small>
+                    Max{" "}
+                    {result.maximumTakeoffWeightKg.toLocaleString()}{" "}
+                    kg
+                  </small>
+                </div>
 
-        <small>
-          Max {result.maximumTakeoffWeightKg.toLocaleString()} kg
-        </small>
-      </div>
+                <div className={styles.resultItem}>
+                  <span>Landing Weight</span>
 
-      <div className={styles.resultItem}>
-        <span>Landing Weight</span>
+                  <strong>
+                    {result.landingWeightKg.toLocaleString()} kg
+                  </strong>
 
-        <strong>
-          {result.landingWeightKg.toLocaleString()} kg
-        </strong>
+                  <small>
+                    Max{" "}
+                    {result.maximumLandingWeightKg.toLocaleString()}{" "}
+                    kg
+                  </small>
+                </div>
 
-        <small>
-          Max {result.maximumLandingWeightKg.toLocaleString()} kg
-        </small>
-      </div>
+                <div className={styles.resultItem}>
+                  <span>Trip Fuel Burn</span>
 
-      </div>
-      </div>
+                  <strong>
+                    {result.tripFuelKg.toLocaleString()} kg
+                  </strong>
+
+                  <small>
+                    {result.tripFuelGallons.toLocaleString()} gal
+                  </small>
+                </div>
+
+                <div className={styles.resultItem}>
+                  <span>Fuel Required</span>
+
+                  <strong>
+                    {result.requiredFuelKg.toLocaleString()} kg
+                  </strong>
+
+                  <small>
+                    {result.fuelLoadPercent}% of capacity
+                  </small>
+                </div>
+
+                <div className={styles.resultItem}>
+                  <span>Reserve Fuel</span>
+
+                  <strong>
+                    {result.reserveFuelKg.toLocaleString()} kg
+                  </strong>
+                </div>
+
+                <div className={styles.resultItem}>
+                  <span>Contingency Fuel</span>
+
+                  <strong>
+                    {result.contingencyFuelKg.toLocaleString()} kg
+                  </strong>
+                </div>
+              </div>
+            </div>
+
+            <div className={styles.economicsSection}>
+              <p className={styles.sectionLabel}>
+                ECONOMICS
+              </p>
+
+              <div className={styles.resultGrid}>
+                <div className={styles.resultItem}>
+                  <span>Jet Fuel Price</span>
+
+                  <strong>
+                    $
+                    {result.fuelPricePerGallon.toFixed(
+                      3
+                    )}
+                    /gal
+                  </strong>
+
+                  <small>
+                    EIA • {result.fuelPriceDate}
+                  </small>
+                </div>
+
+                <div className={styles.resultItem}>
+                  <span>Fuel Burn Cost</span>
+
+                  <strong>
+                    {formatMoney(
+                      result.fuelBurnCost
+                    )}
+                  </strong>
+
+                  <small>
+                    {result.tripFuelGallons.toLocaleString()}{" "}
+                    gal burned
+                  </small>
+                </div>
+
+                <div className={styles.resultItem}>
+                  <span>Fuel Loaded Value</span>
+
+                  <strong>
+                    {formatMoney(
+                      result.fuelLoadValue
+                    )}
+                  </strong>
+
+                  <small>
+                    {result.requiredFuelGallons.toLocaleString()}{" "}
+                    gal loaded
+                  </small>
+                </div>
+
+                <div className={styles.resultItem}>
+                  <span>Checked Bag Revenue</span>
+
+                  <strong>
+                    {formatMoney(
+                      result.checkedBagRevenue
+                    )}
+                  </strong>
+
+                  <small>
+                    $30 × {result.passengerCount} passengers
+                  </small>
+                </div>
+              </div>
+            </div>
+          </div>
         )}
       </section>
     </main>

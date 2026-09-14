@@ -57,4 +57,20 @@ public class SimulationResult
     public double LandingWeightKg { get; set; }
 
     public double MaximumLandingWeightKg { get; set; }
+
+    public double TripFuelGallons { get; set; }
+
+    public double RequiredFuelGallons { get; set; }
+
+    public double FuelPricePerGallon { get; set; }
+
+    public string FuelPriceDate { get; set; } = "";
+
+    public string FuelPriceSource { get; set; } = "";
+
+    public double FuelBurnCost { get; set; }
+
+    public double FuelLoadValue { get; set; }
+
+public double CheckedBagRevenue { get; set; }
 }

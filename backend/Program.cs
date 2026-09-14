@@ -20,6 +20,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 });
 
 builder.Services.AddScoped<FlightSimulationService>();
+builder.Services.AddHttpClient<FuelPriceService>();
 
 builder.Services.AddCors(options =>
 {

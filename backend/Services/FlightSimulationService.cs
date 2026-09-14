@@ -7,6 +7,16 @@ namespace backend.Services;
 
 public class FlightSimulationService
 {
+
+    private const double JetFuelDensityKgPerLiter =
+        0.804;
+
+    private const double LitersPerUsGallon =
+        3.785411784;
+
+    private const double CheckedBagFeePerPassenger =
+        30.0;
+
     private static readonly Aircraft Boeing737800 = new()
     {
         Name = "Boeing 737-800",
@@ -52,14 +62,21 @@ public class FlightSimulationService
 
         ReferenceCruiseWeightKg = 65000,
 
-        WeightFuelFlowExponent = 0.7
+        WeightFuelFlowExponent = 0.7,
+
+
+
     };
 
     private readonly AppDbContext _context;
+    private readonly FuelPriceService _fuelPriceService;
 
-    public FlightSimulationService(AppDbContext context)
+    public FlightSimulationService(
+        AppDbContext context,
+        FuelPriceService fuelPriceService)
     {
         _context = context;
+        _fuelPriceService = fuelPriceService;
     }
 
     public async Task<SimulationResult> SimulateAsync(
@@ -205,6 +222,32 @@ public class FlightSimulationService
             );
         }
 
+        FuelPrice latestFuelPrice =
+         await _fuelPriceService
+        .GetLatestJetFuelPriceAsync();
+
+        double tripFuelGallons =
+            KilogramsToGallons(
+                fuelPlan.TripFuelKg
+            );
+
+        double requiredFuelGallons =
+            KilogramsToGallons(
+                fuelPlan.RequiredFuelKg
+            );
+
+        double fuelBurnCost =
+            tripFuelGallons
+            * latestFuelPrice.PricePerGallon;
+
+        double fuelLoadValue =
+            requiredFuelGallons
+            * latestFuelPrice.PricePerGallon;
+
+        double checkedBagRevenue =
+            passengerCount
+            * CheckedBagFeePerPassenger;
+
         return new SimulationResult
         {
             AircraftName =
@@ -294,7 +337,49 @@ public class FlightSimulationService
                 Math.Round(fuelPlan.LandingWeightKg),
 
             MaximumLandingWeightKg =
-                Boeing737800.MaximumLandingWeightKg
+                Boeing737800.MaximumLandingWeightKg,
+
+            TripFuelGallons =
+                Math.Round(
+                    tripFuelGallons,
+                    1
+                ),
+
+            RequiredFuelGallons =
+                Math.Round(
+                    requiredFuelGallons,
+                    1
+                ),
+
+            FuelPricePerGallon =
+                Math.Round(
+                    latestFuelPrice.PricePerGallon,
+                    3
+                ),
+
+            FuelPriceDate =
+                latestFuelPrice.Date,
+
+            FuelPriceSource =
+                latestFuelPrice.Source,
+
+            FuelBurnCost =
+                Math.Round(
+                    fuelBurnCost,
+                    2
+                ),
+
+            FuelLoadValue =
+                Math.Round(
+                    fuelLoadValue,
+                    2
+                ),
+
+            CheckedBagRevenue =
+                Math.Round(
+                    checkedBagRevenue,
+                    2
+                )
         };
     }
 
@@ -577,5 +662,17 @@ public class FlightSimulationService
         public double TakeoffWeightKg { get; set; }
 
         public double LandingWeightKg { get; set; }
+
+        
+
     }
+
+    private static double KilogramsToGallons(
+        double kilograms)
+    {
+        double liters =
+            kilograms / JetFuelDensityKgPerLiter;
+
+        return liters / LitersPerUsGallon;
+    }    
 }
