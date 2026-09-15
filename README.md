@@ -6,7 +6,9 @@ Users can select:
 - departure and arrival airports
 - passenger load
 - cargo load
+  
 To estimate:
+
 - aircraft weight
 - fuel requirements
 - direct operating costs
